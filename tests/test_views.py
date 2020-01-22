@@ -47,13 +47,40 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 201)
         products = response.json
         self.assertIsInstance(products,dict)
-
-        response = self.client.get("/api/v1/products")
         products = response.json
-        #print (len(products))
-        self.assertIsInstance(products, list)
-        self.assertEqual(len(products), 4)
+        #print(products)
+        nouvelleid=products["id"]
+        response = self.client.get("/api/v1/products/{}".format(nouvelleid))
+        products = response.json
+        self.assertIsInstance(products, dict)
+        self.assertDictEqual(products, {'id': nouvelleid , 'name': 'cafe'})
+
 
     def test_product_create_ko(self):
         response=self.client.post("/api/v1/products", data=json.dumps(dict(truc="cafe")),content_type='application/json')
         self.assertEqual(response.status_code, 422)
+
+    def test_product_update_ko_notexisting(self):
+        response=self.client.patch("/api/v1/products/33333", data=json.dumps(dict(name="the")),content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+
+    def test_product_update_ko_baddata(self):
+        response=self.client.patch("/api/v1/products/2", data=json.dumps(dict(truc="the")),content_type='application/json')
+        self.assertEqual(response.status_code, 422)
+
+    def test_product_update_ko_empty(self):
+        response=self.client.patch("/api/v1/products/2", data=json.dumps(dict(name="")),content_type='application/json')
+        self.assertEqual(response.status_code, 422)
+
+    def test_product_update_ok(self):
+
+        response=self.client.patch("/api/v1/products/3", data=json.dumps(dict(name="the")),content_type='application/json')
+        self.assertEqual(response.status_code, 204)
+
+        response = self.client.get("/api/v1/products/3")
+        products = response.json
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(products, dict)
+        self.assertDictEqual(products, {'id': 3 , 'name': 'the'})
+
+
