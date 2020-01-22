@@ -28,13 +28,13 @@ def firstjson():
 
 @app.route('/api/v1/products/<int:product_id>')
 def readproduct(product_id):
-      for product in PRODUCTS:
+    for product in PRODUCTS:
         if product['id'] == product_id:
             # Product found...
             return jsonify(product)
-    # Production not found
+                # Production not found
     return jsonify({'ERROR': 'product not found'}), 404
- 
+
 @app.route('/api/v1/products/<int:product_id>' , methods=['DELETE'])
 def deleteproduct(product_id):
     for product in PRODUCTS:
